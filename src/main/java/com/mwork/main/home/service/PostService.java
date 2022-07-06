@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -50,6 +51,8 @@ public class PostService {
     public Comment saveComment(Comment comment) {
         return commentRepository.save(comment);
     }
+
+    public List<Comment> searchCommentByBoardId(Long id) {return commentRepository.findCommentByIdExcludeChild(id); }
 
 
 

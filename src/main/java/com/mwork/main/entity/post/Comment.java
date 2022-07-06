@@ -2,6 +2,7 @@ package com.mwork.main.entity.post;
 
 import com.mwork.main.entity.member.Member;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,6 +16,7 @@ import static javax.persistence.FetchType.*;
 
 @Entity
 @Getter @Setter
+@EqualsAndHashCode
 @Table(name = "comments")
 public class Comment {
 
@@ -30,6 +32,9 @@ public class Comment {
     private Board board;
 
     private String content;
+
+    @Enumerated(EnumType.STRING)
+    private DelFlag delFlag = DelFlag.ACTIVATE;
 
     private LocalDateTime createdDate = LocalDateTime.now();
 

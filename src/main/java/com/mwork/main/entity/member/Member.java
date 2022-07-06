@@ -2,6 +2,7 @@ package com.mwork.main.entity.member;
 
 import com.mwork.main.entity.post.Board;
 import com.mwork.main.entity.post.Comment;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,6 +14,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@EqualsAndHashCode
 public class Member {
 
     @Id @GeneratedValue

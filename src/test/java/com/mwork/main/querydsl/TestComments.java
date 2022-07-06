@@ -1,15 +1,15 @@
 package com.mwork.main.querydsl;
 
 
-import static com.mwork.main.entity.QMember.*;
+import static com.mwork.main.entity.member.QMember.*;
 
 import com.mwork.main.entity.post.Board;
 import com.mwork.main.entity.post.Comment;
 import com.mwork.main.entity.member.Member;
-import static com.mwork.main.entity.QBoard.*;
+import static com.mwork.main.entity.post.QBoard.*;
 import static org.assertj.core.api.Assertions.*;
 
-import static com.mwork.main.entity.QComment.*;
+import static com.mwork.main.entity.post.QComment.*;
 
 import com.mwork.main.home.repository.CommentRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -96,4 +96,14 @@ public class TestComments {
 
         assertThat(result.size()).isEqualTo(2);
     }
+
+    @Test
+    void testFindComment() {
+        List<Comment> findByBoardId = commentRepository.findByBoardId(28L);
+        for (Comment comment : findByBoardId) {
+            System.out.println("comment.getContent() = " + comment.getContent());
+        }
+    }
+
+
 }

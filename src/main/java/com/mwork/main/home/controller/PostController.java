@@ -1,10 +1,7 @@
 package com.mwork.main.home.controller;
 
 import com.mwork.main.auth.Oauth2Service;
-import com.mwork.main.entity.post.Board;
-import com.mwork.main.entity.post.BoardForm;
-import com.mwork.main.entity.post.Comment;
-import com.mwork.main.entity.post.CommentForm;
+import com.mwork.main.entity.post.*;
 import com.mwork.main.entity.member.Member;
 import com.mwork.main.home.repository.MemberRepository;
 import com.mwork.main.home.service.PostService;
@@ -18,7 +15,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -57,8 +57,7 @@ public class PostController {
                             Model model,
                             @RequestParam(value = "keyword",defaultValue = "") String keyword,
                             @RequestParam(defaultValue = "5") Integer size) {
-//postService.findAll(pageable);
-        log.info("keyword = {}",keyword);
+
         Page<Board> all = postService.findAllByTitle(keyword,pageable);
 
         model.addAttribute("posts",all);
@@ -72,20 +71,24 @@ public class PostController {
                              @SessionAttribute(required = false) Long accountId) {
 
         postService.addCount(id);
-        Optional<Board> findPost = postService.findByIdBoard(id);
-        Board findGetPost = findPost.get();
+        Board findGetPost = getBoard(id);
 
-        if (accountId != null && findGetPost.getMember().getId() == accountId) {
+        List<Comment> comments = postService.searchCommentByBoardId(id);
+        model.addAttribute("comments",comments);
+
+        if (accountId != null && findGetPost.getMember().getId().equals(accountId)) {
             model.addAttribute("udCondition",true);
         }
         model.addAttribute("item",findGetPost);
         return "detail";
     }
 
+
+
     @GetMapping("/edit/{id}")
     public String editPost(@PathVariable Long id, Model model) {
-        Optional<Board> findPost = postService.findByIdBoard(id);
-        Board findGetPost = findPost.get();
+        Board findGetPost = getBoard(id);
+
         model.addAttribute("item", findGetPost);
 
         return "edit";
@@ -93,7 +96,8 @@ public class PostController {
 
     @PostMapping("/edit/{id}")
     public String editSubmitPost(@PathVariable Long id,BoardForm boardForm) {
-        Board board = postService.findByIdBoard(id).get();
+        Board board = getBoard(id);
+
         board.setTitle(boardForm.getTitle());
         board.setArticle(boardForm.getResult());
         board.setModifiedDate(LocalDateTime.now());
@@ -113,16 +117,123 @@ public class PostController {
     @PostMapping("/{id}/comment")
     public String addComment(@PathVariable Long id, CommentForm commentForm,
                              @SessionAttribute Long accountId) {
-        Member member = memberRepository.findById(accountId).get();
-        Board findBoard = postService.findByIdBoard(id).get();
+        Member member = getMember(accountId);
+
+        Board board = getBoard(id);
 
         Comment comment = new Comment();
-        comment.setBoard(findBoard);
+        comment.setBoard(board);
         comment.setContent(commentForm.getContent());
         comment.setMember(member);
         postService.saveComment(comment);
 
         return "redirect:/post/{id}";
+    }
+
+    @PostMapping("/{boardId}/comment/{commentId}")
+    public String addComments(@PathVariable Long boardId,
+                               @PathVariable(required = false) Long commentId,
+                               CommentForm commentForm,
+                               @SessionAttribute Long accountId) {
+
+        Member member = getMember(accountId);
+        Board board = getBoard(boardId);
+
+        Comment comment = new Comment();
+
+        if (commentId != null) {
+            Comment parentComemnt = getComment(commentId);
+            comment.setParentComment(parentComemnt);
+        }
+
+        comment.setBoard(board);
+        comment.setContent(commentForm.getContent());
+        comment.setMember(member);
+        postService.saveComment(comment);
+
+        return "redirect:/post/{boardId}";
+    }
+
+
+
+    @PostMapping("/{boardId}/comment/{commentId}/delete")
+    public String delComment(@PathVariable Long boardId,
+                             @PathVariable Long commentId,
+                             @SessionAttribute Long accountId) {
+
+        Comment findComment = getComment(commentId);
+        Member findMember = getMember(accountId);
+
+        String containsOfComments = isContainsOfComments(findMember, findComment);
+        if (containsOfComments != null) {
+            return containsOfComments;
+        }
+
+
+        findComment.setContent("삭제된 댓글입니다.  (" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) + ")");
+        findComment.setDelFlag(DelFlag.DELETE);
+        findComment.setModifiedDate(LocalDateTime.now());
+
+        postService.saveComment(findComment);
+
+        return "redirect:/post/{boardId}";
+    }
+
+
+    @PostMapping("/{boardId}/comment/{commentId}/update")
+    public String updateComment(@PathVariable Long boardId,
+                                @PathVariable Long commentId,
+                                @SessionAttribute Long accountId,
+                                CommentForm commentForm) {
+        Comment findComment = getComment(commentId);
+        Member findMember = getMember(accountId);
+
+        String containsOfComments = isContainsOfComments(findMember, findComment);
+        if (containsOfComments != null) {
+            return containsOfComments;
+        }
+
+        findComment.setContent(commentForm.getContent());
+        findComment.setModifiedDate(LocalDateTime.now());
+
+        postService.saveComment(findComment);
+
+        return "redirect:/post/{boardId}";
+
+    }
+
+    private String isContainsOfComments(Member findMember, Comment findComment) {
+        if (!findMember.getCommentList().contains(findComment)) {
+            return "redirect:/post/{boardId}";
+        }
+        return null;
+    }
+
+    private Comment getComment(Long commentId) {
+        Optional<Comment> findByIdComment = postService.findByIdComment(commentId);
+        if (findByIdComment.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+        Comment findComment = findByIdComment.get();
+        return findComment;
+    }
+
+    private Member getMember(Long accountId) {
+        Optional<Member> findMember = memberRepository.findById(accountId);
+        if (findMember.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+        Member member = findMember.get();
+        return member;
+    }
+
+    private Board getBoard(Long id) {
+        Optional<Board> findPost = postService.findByIdBoard(id);
+        if (findPost.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+        Board findGetPost = findPost.get();
+        return findGetPost;
     }
 
 
