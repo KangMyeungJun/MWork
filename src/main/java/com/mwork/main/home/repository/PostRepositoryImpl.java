@@ -1,7 +1,7 @@
 package com.mwork.main.home.repository;
 
 import com.mwork.main.entity.post.Board;
-import static com.mwork.main.entity.QBoard.*;
+import static com.mwork.main.entity.post.QBoard.*;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;

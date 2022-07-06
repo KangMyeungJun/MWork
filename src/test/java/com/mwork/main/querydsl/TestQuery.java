@@ -1,6 +1,6 @@
 package com.mwork.main.querydsl;
 
-import static com.mwork.main.entity.QTeam.*;
+import static com.mwork.main.entity.test.QTeam.*;
 import com.mwork.main.entity.test.Team;
 import com.mwork.main.entity.test.TestEntity;
 import com.querydsl.core.Tuple;
@@ -15,7 +15,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
 
-import static com.mwork.main.entity.QTestEntity.testEntity;
+import static com.mwork.main.entity.test.QTestEntity.testEntity;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest

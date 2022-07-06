@@ -1,6 +1,7 @@
 package com.mwork.main.entity.post;
 
 import com.mwork.main.entity.member.Member;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
@@ -16,6 +17,7 @@ import static javax.persistence.FetchType.*;
 @Entity
 @Getter
 @Setter
+@EqualsAndHashCode
 public class Board {
 
     @Id @GeneratedValue
