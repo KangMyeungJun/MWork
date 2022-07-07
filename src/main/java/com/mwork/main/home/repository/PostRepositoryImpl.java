@@ -1,6 +1,7 @@
 package com.mwork.main.home.repository;
 
 import com.mwork.main.entity.post.Board;
+import com.querydsl.core.types.OrderSpecifier;
 import static com.mwork.main.entity.post.QBoard.*;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -13,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import java.util.List;
 
+import static com.mwork.main.entity.post.QBoard.board;
+
 public class PostRepositoryImpl implements PostRepositoryCustom{
 
     private final JPAQueryFactory query;
@@ -22,17 +25,42 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
 
     }
 
+    private OrderSpecifier<?> boardSort(String sort) {
+        if (sort == null) {
+            return board.createdDate.desc();
+        }
+        if (sort.equals("count")) {
+            return board.count.desc();
+        }
+        if (sort.equals("rating")) {
+            return board.commentList.size().desc();
+        }
+        return board.createdDate.desc();
+    }
+
     @Override
-    public Page<Board> searchTitle(String title, Pageable pageable) {
+    public Page<Board> searchTitle(String title, Pageable pageable, String sort) {
+
+
         List<Board> results = query.selectFrom(board)
                 .where(board.title.contains(title))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
+                .orderBy(boardSort(sort))
                 .fetch();
+
 
         int size = results.size();
 
         return new PageImpl<>(results,pageable,size);
+    }
+
+    @Override
+    public int selectBoardCnt(String title) {
+        return query.select(board.count)
+                .from(board)
+                .where(board.title.contains(title))
+                .fetch().size();
     }
 
     @Override
