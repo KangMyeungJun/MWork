@@ -8,6 +8,7 @@ import com.mwork.main.home.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -46,22 +47,36 @@ public class PostController {
         board.setMember(member);
 
         Board savedBoard = postService.saveBoard(board);
-
-
         log.info("savedBoard = {}",savedBoard);
         return "redirect:/post/";
     }
 
     @GetMapping("/pages")
-    public String postPages(@PageableDefault(size = 9, sort="createdDate",direction = Sort.Direction.DESC) Pageable pageable,
+    public String postPages(@PageableDefault(size = 9) Pageable pageable,
                             Model model,
                             @RequestParam(value = "keyword",defaultValue = "") String keyword,
-                            @RequestParam(defaultValue = "5") Integer size) {
+                            @RequestParam(defaultValue = "5") Integer size,
+                            @RequestParam(required = false) String sort,
+                            @RequestParam(required = false) String page) {
 
-        Page<Board> all = postService.findAllByTitle(keyword,pageable);
+
+        Page<Board> all = postService.findAllByTitle(keyword,pageable,sort);
+
+        int boardCount = postService.findBoardCount(keyword);
+        int pageNumber = all.getNumber() + 1;
+        int pageSize = pageable.getPageSize();
+
+        model.addAttribute("nextFlag",true);
+        if (pageSize * pageNumber <= boardCount) {
+            model.addAttribute("nextFlag",false);
+        }
 
         model.addAttribute("posts",all);
         model.addAttribute("size",size);
+        model.addAttribute("page",page);
+        model.addAttribute("sort",sort);
+        model.addAttribute("keyword",keyword);
+
 
         return "pages";
     }

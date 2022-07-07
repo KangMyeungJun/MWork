@@ -23,9 +23,11 @@ public class PostService {
         return postRepository.save(board);
     }
 
-    public Page<Board> findAllByTitle(String title, Pageable pageable) {
-        return postRepository.searchTitle(title,pageable);
+    public Page<Board> findAllByTitle(String title, Pageable pageable,String sort) {
+        return postRepository.searchTitle(title,pageable,sort);
     }
+
+    public int findBoardCount(String title) {return postRepository.selectBoardCnt(title);}
 
     @Transactional(readOnly = true)
     public Page<Board> findAll(Pageable pageable) {

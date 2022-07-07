@@ -15,7 +15,7 @@ import java.util.List;
 @SpringBootTest
 @Transactional
 @Slf4j
-public class TestPostRepository {
+class TestPostRepository {
 
     @Autowired
     PostRepository postRepository;
@@ -23,7 +23,8 @@ public class TestPostRepository {
     @Test
     void testSearch() {
         PageRequest request = PageRequest.of(0,5);
-        Page<Board> boards = postRepository.searchTitle("",request);
+        String sort = "count";
+        Page<Board> boards = postRepository.searchTitle("",request,sort);
         List<Board> all = postRepository.findAll();
         for (Board board : all) {
             System.out.println("board = " + board.getTitle());
