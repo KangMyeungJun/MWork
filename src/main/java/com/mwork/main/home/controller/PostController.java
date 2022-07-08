@@ -136,7 +136,6 @@ public class PostController {
     public String addComment(@PathVariable Long id, CommentForm commentForm,
                              @SessionAttribute Long accountId) {
         Member member = getMember(accountId);
-
         Board board = getBoard(id);
 
         Comment comment = new Comment();
@@ -158,7 +157,6 @@ public class PostController {
         Board board = getBoard(boardId);
 
         Comment comment = new Comment();
-
         if (commentId != null) {
             Comment parentComemnt = getComment(commentId);
             comment.setParentComment(parentComemnt);
@@ -232,8 +230,7 @@ public class PostController {
         if (findByIdComment.isEmpty()) {
             throw new EntityNotFoundException();
         }
-        Comment findComment = findByIdComment.get();
-        return findComment;
+        return findByIdComment.get();
     }
 
     private Member getMember(Long accountId) {
@@ -241,8 +238,7 @@ public class PostController {
         if (findMember.isEmpty()) {
             throw new EntityNotFoundException();
         }
-        Member member = findMember.get();
-        return member;
+        return findMember.get();
     }
 
     private Board getBoard(Long id) {
@@ -250,8 +246,7 @@ public class PostController {
         if (findPost.isEmpty()) {
             throw new EntityNotFoundException();
         }
-        Board findGetPost = findPost.get();
-        return findGetPost;
+        return findPost.get();
     }
 
 
