@@ -70,9 +70,6 @@ public class PostController {
         if (pageSize * pageNumber <= boardCount) {
             model.addAttribute("nextFlag",false);
         }
-             
-
-        Page<Board> all = postService.findAllByTitle(keyword,pageable);
        
         model.addAttribute("posts",all);
         model.addAttribute("size",size);
