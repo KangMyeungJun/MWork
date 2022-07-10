@@ -28,7 +28,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PostController {
 
-    private final MemberRepository memberRepository;
     private final PostService postService;
     private final Oauth2Service oauth2Service;
 
@@ -231,7 +230,7 @@ public class PostController {
     }
 
     private Member getMember(Long accountId) {
-        Optional<Member> findMember = memberRepository.findById(accountId);
+        Optional<Member> findMember = oauth2Service.findById(accountId);
         if (findMember.isEmpty()) {
             throw new EntityNotFoundException();
         }
