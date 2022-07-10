@@ -45,7 +45,7 @@ public class Oauth2Service {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
         params.add("client_id", "92d5910837e26848e623401f09c24031");
-        params.add("redirect_uri", "http://localhost/login/oauth2/code/kakao");
+        params.add("redirect_uri", "http://3.35.254.174/login/oauth2/code/kakao");
         params.add("code", code);
         params.add("client_secret", "JQIT8G3DarOMVSqziD8wI9okPggpNji7");
 
