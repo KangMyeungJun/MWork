@@ -218,14 +218,15 @@
 
 
                             <div class="col-md-6">
-                                <form method="post" th:action="@{'/post/' + ${item.id} + '/comment'}">
+                                <form method="post" th:action="@{'/post/' + ${item.id} + '/comment'}" id="commentFrm">
                                     <div class="form-group">
                                         <label for="message">댓글 남기기 *</label>
                                         <textarea th:if="${session.accountId != null}" id="message" cols="30" rows="3" class="form-control" name="content"></textarea>
                                         <textarea th:if="${session.accountId == null}" id="message" cols="30" rows="3" class="form-control" name="content" disabled>로그인 후 입력해주세요.</textarea>
                                     </div>
                                     <div class="form-group mb-0">
-                                        <input type="submit" value="댓글 입력" class="btn btn-primary px-3">
+                                        <!--<input type="submit" value="댓글 입력" class="btn btn-primary px-3">-->
+                                        <button id="commentBtn" class="btn btn-primary px-3">댓글 입력</button>
                                     </div>
                                 </form>
                             </div>
@@ -276,7 +277,11 @@
     function onDelComment(id) {
         $("#delForm" + id).submit();
     }
-
+$(function () {
+    $("#commentBtn").click(function () {
+        $("#commentFrm").submit();
+    })
+})
 </script>
 
 </html>
