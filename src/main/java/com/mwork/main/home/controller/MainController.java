@@ -26,7 +26,7 @@ public class MainController {
 
     private void putNaverApiURL(Model model) throws UnsupportedEncodingException {
         String clientId = "CSswJoxefQi3YU_diksH";
-        String redirectURI = URLEncoder.encode("http://localhost/login/oauth2/code/naver","UTF-8");
+        String redirectURI = URLEncoder.encode("http://3.35.254.174/login/oauth2/code/naver","UTF-8");
         SecureRandom random = new SecureRandom();
         String state = new BigInteger(130,random).toString();
         String apiURL = "https://nid.naver.com/oauth2.0/authorize?response_type=code";
