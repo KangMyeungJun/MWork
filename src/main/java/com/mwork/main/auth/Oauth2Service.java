@@ -23,6 +23,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -30,6 +31,10 @@ import java.util.Map;
 public class Oauth2Service {
 
     private final MemberRepository memberRepository;
+
+    public Optional<Member> findById(Long id) {
+        return memberRepository.findById(id);
+    }
 
     public JSONObject requestParam(String code) {
         RestTemplate rt = new RestTemplate();
