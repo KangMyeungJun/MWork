@@ -89,16 +89,24 @@ public class Oauth2Service {
         );
         log.info("profile = {}",profileResponse.getBody().toString());
         String body = profileResponse.getBody();
-        Map<String, Object> map = JsonParserFactory.getJsonParser().parseMap(body);
-        String kakao_account = map.get("kakao_account").toString();
+/*        Map<String, Object> map = JsonParserFactory.getJsonParser().parseMap(body);
+        String kakao_account = map.get("kakao_account").toString();*/
 
-        JSONObject obj = new JSONObject(kakao_account);
-        JSONObject profile = (JSONObject) obj.get("profile");
+/*
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode responseNode = objectMapper.readTree(memberEntity.getBody()).get("response");
+        String id = responseNode.get("id").asText();
+        String name = responseNode.get("name").asText();
+        String email = responseNode.get("email").asText();
+*/
+
+/*        JSONObject obj = new JSONObject(kakao_account);
+        JSONObject profile = (JSONObject) obj.get("profile");*/
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
-        JsonNode kakaoAccountNode = objectMapper.readTree(obj.toString());
-
+        //JsonNode kakaoAccountNode = objectMapper.readTree(obj.toString());
+        JsonNode kakaoAccountNode = objectMapper.readTree(body).get("kakao_account");
         String nickname = kakaoAccountNode.get("profile").get("nickname").asText();
         String email = kakaoAccountNode.get("email").asText();
         String id = objectMapper.readTree(body.toString()).get("id").asText();
@@ -167,7 +175,6 @@ public class Oauth2Service {
                 HttpMethod.GET,
                 entity,
                 String.class);
-        log.info("memberEntity = {}",memberEntity.getBody().toString());
 
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode responseNode = objectMapper.readTree(memberEntity.getBody()).get("response");
