@@ -4,17 +4,19 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mwork.main.home.repository.MemberRepository;
 import com.mwork.main.entity.auth2.Auth2Member;
 import com.mwork.main.entity.member.Member;
 import com.mwork.main.entity.member.Role;
 import com.mwork.main.entity.member.SocialType;
+import com.mwork.main.home.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.boot.json.JsonParserFactory;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -22,7 +24,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -80,32 +81,19 @@ public class Oauth2Service {
         headers.add("Content-type","application/x-www-form-urlencoded;charset=utf-8");
 
         HttpEntity<HttpHeaders> kakaoRequest = new HttpEntity<>(headers);
-        log.info("authorization = {}",kakaoRequest.getHeaders());
+
         ResponseEntity<String> profileResponse = rt.exchange(
                 "https://kapi.kakao.com/v2/user/me",
                 HttpMethod.POST,
                 kakaoRequest,
                 String.class
         );
-        log.info("profile = {}",profileResponse.getBody().toString());
+
         String body = profileResponse.getBody();
-/*        Map<String, Object> map = JsonParserFactory.getJsonParser().parseMap(body);
-        String kakao_account = map.get("kakao_account").toString();*/
-
-/*
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode responseNode = objectMapper.readTree(memberEntity.getBody()).get("response");
-        String id = responseNode.get("id").asText();
-        String name = responseNode.get("name").asText();
-        String email = responseNode.get("email").asText();
-*/
-
-/*        JSONObject obj = new JSONObject(kakao_account);
-        JSONObject profile = (JSONObject) obj.get("profile");*/
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
-        //JsonNode kakaoAccountNode = objectMapper.readTree(obj.toString());
+
         JsonNode kakaoAccountNode = objectMapper.readTree(body).get("kakao_account");
         String nickname = kakaoAccountNode.get("profile").get("nickname").asText();
         String email = kakaoAccountNode.get("email").asText();
@@ -135,7 +123,6 @@ public class Oauth2Service {
                 kakaoRequest,
                 String.class);
 
-        log.info("logout = {}",entity.getBody());
         return entity;
     }
 
