@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <html lang="en">
 
 <head>
@@ -39,8 +40,8 @@
                 <form action="">
                     <div class="input-group" th:if="${session.nick != null}">
                         <p th:text="'안녕하세요 ' + ${session.nick} + '님!'"></p>
-
                     </div>
+                    <div class="input-group" sec:authorize="isAuthenticated()">AUTH!</div>
                 </form>
             </div>
         </div>
