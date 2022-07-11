@@ -57,7 +57,6 @@ public class TokenService {
                     .getExpiration()
                     .after(new Date());
         } catch (Exception e) {
-            e.printStackTrace();
             return false;
         }
     }
