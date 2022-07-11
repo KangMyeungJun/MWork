@@ -1,6 +1,7 @@
 package com.mwork.main.auth;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mwork.main.entity.auth2.Auth2Member;
 import com.mwork.main.entity.member.Member;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Controller
@@ -22,17 +24,22 @@ import java.io.IOException;
 @SessionAttributes({"token","email","nick","oauth2id","accountId"})
 public class MemberOauth2Controller {
     private final Oauth2Service os;
+    private final TokenService tokenService;
+    private final ObjectMapper objectMapper;
 
     @GetMapping("/kakao")
-    public String kakaoOauthRedirect(@RequestParam String code, Model model, RedirectAttributes attributes) throws JSONException, IOException {
+    public String kakaoOauthRedirect(@RequestParam String code, Model model, HttpServletResponse response) throws JSONException, IOException {
 
         JSONObject params = os.requestParam(code);
         log.info("param = {}",params.get("access_token"));
         model.addAttribute("token",params.get("access_token"));
 
         Auth2Member kakaoMember = os.requestAuthorization(params);
-
         setMemberToModel(model, kakaoMember);
+        Token token = tokenService.generateToken(kakaoMember.getId(),"USER");
+        log.info("token = {}",token);
+
+        writeTokenResponse(response,token);
 
         return "redirect:/";
     }
@@ -68,6 +75,18 @@ public class MemberOauth2Controller {
         model.addAttribute("email", auth2Member.getEmail());
         model.addAttribute("nick", auth2Member.getName());
         model.addAttribute("accountId",findBySocialId.getId());
+    }
+
+    private void writeTokenResponse(HttpServletResponse response, Token token) throws IOException {
+        response.setContentType("text/html;charset=UTF-8");
+
+        response.addHeader("Auth", token.getToken());
+        response.addHeader("Refresh", token.getRefreshToken());
+        response.setContentType("application/json;charset=UTF-8");
+
+        var writer = response.getWriter();
+        writer.println(objectMapper.writeValueAsString(token));
+        writer.flush();
     }
 
 }
