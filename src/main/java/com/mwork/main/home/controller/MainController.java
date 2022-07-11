@@ -19,8 +19,9 @@ import java.security.SecureRandom;
 public class MainController {
 
     @GetMapping("/")
-    public String main(Model model) throws UnsupportedEncodingException {
+    public String main(Model model,@AuthenticationPrincipal Member member) throws UnsupportedEncodingException {
         putNaverApiURL(model);
+        model.addAttribute("member",member);
 
         return "index";
     }
