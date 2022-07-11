@@ -6,14 +6,14 @@ import com.mwork.main.entity.auth2.Auth2Member;
 import com.mwork.main.entity.member.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONObject;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
@@ -35,10 +35,14 @@ public class MemberOauth2Controller {
         model.addAttribute("token",params.get("access_token"));
 
         Auth2Member kakaoMember = os.requestAuthorization(params);
-        setMemberToModel(model, kakaoMember);
         Token token = tokenService.generateToken(kakaoMember.getId(),"USER");
         log.info("token = {}",token);
+        Cookie cookie = new Cookie("refreshToken",token.getRefreshToken());
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        response.addCookie(cookie);
 
+        setMemberToModel(model, kakaoMember);
         writeTokenResponse(response,token);
 
         return "redirect:/";
@@ -79,7 +83,6 @@ public class MemberOauth2Controller {
 
     private void writeTokenResponse(HttpServletResponse response, Token token) throws IOException {
         response.setContentType("text/html;charset=UTF-8");
-
         response.addHeader("Auth", token.getToken());
         response.addHeader("Refresh", token.getRefreshToken());
         response.setContentType("application/json;charset=UTF-8");

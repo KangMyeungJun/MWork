@@ -1,6 +1,7 @@
 package com.mwork.main.home.controller;
 
 import com.mwork.main.auth.Oauth2Service;
+import com.mwork.main.auth.TokenService;
 import com.mwork.main.entity.post.*;
 import com.mwork.main.entity.member.Member;
 import com.mwork.main.home.repository.MemberRepository;
@@ -30,6 +31,7 @@ public class PostController {
 
     private final PostService postService;
     private final Oauth2Service oauth2Service;
+    private final TokenService tokenService;
 
     @GetMapping("/")
     public String addPost() {
