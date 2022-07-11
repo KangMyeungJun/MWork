@@ -37,7 +37,7 @@ public class MemberOauth2Controller {
         Auth2Member kakaoMember = os.requestAuthorization(params);
         Token token = tokenService.generateToken(kakaoMember.getId(),"USER");
         log.info("token = {}",token);
-        Cookie cookie = new Cookie("refreshToken",token.getRefreshToken());
+        Cookie cookie = new Cookie("accessToken",token.getToken());
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         response.addCookie(cookie);
