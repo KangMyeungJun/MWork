@@ -26,8 +26,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = request.getHeader("Auth");
-        log.info("TokenFilter");
         if (token != null && tokenService.verifyToken(token)) {
+            log.info("TokenFilter");
             String uid = tokenService.getUid(token);
             Member findMember = oauth2Service.findBySocialId(uid);
             Authentication authentication = getAuthentication(findMember);
