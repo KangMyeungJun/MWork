@@ -41,7 +41,7 @@
                     <div class="input-group" th:if="${session.nick != null}">
                         <p th:text="'안녕하세요 ' + ${session.nick} + '님!'"></p>
                     </div>
-                    <div class="input-group" sec:authorize="isAuthenticated()" th:text="${#authentication.name}">AUTH!</div>
+                    <div class="input-group" sec:authorize="isAuthenticated()" th:text="${#authentication.name.nick}">AUTH!</div>
                 </form>
             </div>
         </div>
