@@ -84,9 +84,9 @@ public class MemberOauth2Controller {
         response.addHeader("Refresh", token.getRefreshToken());
         response.setContentType("application/json;charset=UTF-8");
 
-        var writer = response.getWriter();
-        writer.println(objectMapper.writeValueAsString(token));
-        writer.flush();
+//        var writer = response.getWriter();
+//        writer.println(objectMapper.writeValueAsString(token));
+//        writer.flush();
     }
 
 }
