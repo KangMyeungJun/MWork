@@ -35,7 +35,8 @@ public class TokenService {
         claims.put("role",role);
         Date now = new Date();
 
-        return new Token(Jwts.builder()
+        return new Token(
+                Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + tokenPeriod))
@@ -54,7 +55,7 @@ public class TokenService {
                     .setSigningKey(key)
                     .build().parseClaimsJws(token);
             return claims.getBody()
-                    .getExpiration()
+                    .getExpiration  ()
                     .after(new Date());
         } catch (Exception e) {
             return false;

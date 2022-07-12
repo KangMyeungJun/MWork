@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -40,11 +41,10 @@ public class PostController {
 
 
     @PostMapping (value = "/")
-    public String postForm(BoardForm boardForm,@SessionAttribute String oauth2id) {
+    public String postForm(BoardForm boardForm,@AuthenticationPrincipal Member member) {
         Board board = new Board();
         board.setArticle(boardForm.getResult());
         board.setTitle(boardForm.getTitle());
-        Member member = oauth2Service.findBySocialId(oauth2id);
         board.setMember(member);
 
         Board savedBoard = postService.saveBoard(board);
@@ -84,7 +84,7 @@ public class PostController {
 
     @GetMapping("/{id}")
     public String pageDetail(@PathVariable Long id,Model model,
-                             @SessionAttribute(required = false) Long accountId) {
+                             @AuthenticationPrincipal Member member) {
 
         postService.addCount(id);
         Board findGetPost = getBoard(id);
@@ -92,19 +92,25 @@ public class PostController {
         List<Comment> comments = postService.searchCommentByBoardId(id);
         model.addAttribute("comments",comments);
 
-        if (accountId != null && findGetPost.getMember().getId().equals(accountId)) {
-            model.addAttribute("udCondition",true);
-        }
+        boolean udCondition = addUdcondition(model, member, findGetPost);
+
+        model.addAttribute("udCondition",udCondition);
         model.addAttribute("item",findGetPost);
+
         return "detail";
     }
 
+    private boolean addUdcondition(Model model, Member member, Board findGetPost) {
+        if (member != null && findGetPost.getMember().getId().equals(member.getId())) {
+            return true;
+        }
+        return false;
+    }
 
 
     @GetMapping("/edit/{id}")
     public String editPost(@PathVariable Long id, Model model) {
         Board findGetPost = getBoard(id);
-
         model.addAttribute("item", findGetPost);
 
         return "edit";
@@ -132,8 +138,8 @@ public class PostController {
 
     @PostMapping("/{id}/comment")
     public String addComment(@PathVariable Long id, CommentForm commentForm,
-                             @SessionAttribute Long accountId) {
-        Member member = getMember(accountId);
+                             @AuthenticationPrincipal Member member) {
+
         Board board = getBoard(id);
 
         Comment comment = new Comment();
@@ -149,9 +155,8 @@ public class PostController {
     public String addComments(@PathVariable Long boardId,
                                @PathVariable(required = false) Long commentId,
                                CommentForm commentForm,
-                               @SessionAttribute Long accountId) {
+                              @AuthenticationPrincipal Member member) {
 
-        Member member = getMember(accountId);
         Board board = getBoard(boardId);
 
         Comment comment = new Comment();
@@ -173,16 +178,14 @@ public class PostController {
     @PostMapping("/{boardId}/comment/{commentId}/delete")
     public String delComment(@PathVariable Long boardId,
                              @PathVariable Long commentId,
-                             @SessionAttribute Long accountId) {
+                             @AuthenticationPrincipal Member member) {
 
         Comment findComment = getComment(commentId);
-        Member findMember = getMember(accountId);
 
-        String containsOfComments = isContainsOfComments(findMember, findComment);
+        String containsOfComments = isContainsOfComments(member, findComment);
         if (containsOfComments != null) {
             return containsOfComments;
         }
-
 
         findComment.setContent("삭제된 댓글입니다.  (" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) + ")");
         findComment.setDelFlag(DelFlag.DELETE);
@@ -197,12 +200,11 @@ public class PostController {
     @PostMapping("/{boardId}/comment/{commentId}/update")
     public String updateComment(@PathVariable Long boardId,
                                 @PathVariable Long commentId,
-                                @SessionAttribute Long accountId,
+                                @AuthenticationPrincipal Member member,
                                 CommentForm commentForm) {
         Comment findComment = getComment(commentId);
-        Member findMember = getMember(accountId);
 
-        String containsOfComments = isContainsOfComments(findMember, findComment);
+        String containsOfComments = isContainsOfComments(member, findComment);
         if (containsOfComments != null) {
             return containsOfComments;
         }
@@ -216,8 +218,9 @@ public class PostController {
 
     }
 
-    private String isContainsOfComments(Member findMember, Comment findComment) {
-        if (!findMember.getCommentList().contains(findComment)) {
+    private String isContainsOfComments(Member member, Comment findComment) {
+        List<Comment> commentList = postService.searchCommentByMemberId(member);
+        if (!commentList.contains(findComment)) {
             return "redirect:/post/{boardId}";
         }
         return null;
@@ -231,13 +234,13 @@ public class PostController {
         return findByIdComment.get();
     }
 
-    private Member getMember(Long accountId) {
+/*    private Member getMember(Long accountId) {
         Optional<Member> findMember = oauth2Service.findById(accountId);
         if (findMember.isEmpty()) {
             throw new EntityNotFoundException();
         }
         return findMember.get();
-    }
+    }*/
 
     private Board getBoard(Long id) {
         Optional<Board> findPost = postService.findByIdBoard(id);

@@ -35,7 +35,7 @@ public class SecurityConfig{
         http.addFilterBefore(new JwtAuthenticationFilter(tokenService,oauth2Service), UsernamePasswordAuthenticationFilter.class);
 
         http.logout().deleteCookies("JSESSIONID");
-
+        http.logout().deleteCookies("accessToken");
 
         return http.build();
     }
