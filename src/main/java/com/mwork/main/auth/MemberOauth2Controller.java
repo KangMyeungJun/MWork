@@ -22,7 +22,6 @@ import java.io.IOException;
 @RequestMapping("/login/oauth2/code")
 @RequiredArgsConstructor
 @Slf4j
-@SessionAttributes({"token","email","nick","oauth2id","accountId"})
 public class MemberOauth2Controller {
     private final Oauth2Service os;
     private final TokenService tokenService;
@@ -36,40 +35,42 @@ public class MemberOauth2Controller {
         model.addAttribute("token",params.get("access_token"));
 
         Auth2Member kakaoMember = os.requestAuthorization(params);
-        Token token = tokenService.generateToken(kakaoMember.getId(),"USER");
-        log.info("token = {}",token);
-        Cookie cookie = new Cookie("accessToken",token.getToken());
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        response.addCookie(cookie);
-
-        setMemberToModel(model, kakaoMember);
-        writeTokenResponse(response,token);
+        setToken(response, kakaoMember);
+        //setMemberToModel(model, kakaoMember);
 
         return "redirect:/";
     }
 
+
+
     @GetMapping("/logout")
-    public String kakaoOauthLogout(@SessionAttribute String token, SessionStatus status) {
-        os.requestLogout(token);
+    public String kakaoOauthLogout(HttpServletResponse response /*,@SessionAttribute String token, SessionStatus status*/) {
+
+/*        os.requestLogout(token);
         status.setComplete();
-        log.info("setComplete = {}",status.isComplete());
+        log.info("setComplete = {}",status.isComplete());*/
+
+        Cookie tokenCookie = new Cookie("accessToken",null);
+        tokenCookie.setMaxAge(0);
+        tokenCookie.setPath("/");
+        response.addCookie(tokenCookie);
+
         return "redirect:/";
     }
 
     @GetMapping("/naver")
-    public String naverCallback(String code,@SessionAttribute String state,Model model) throws JsonProcessingException {
+    public String naverCallback(String code,String state,Model model,HttpServletResponse response) throws JsonProcessingException {
         String token = os.getNaverToken(code, state);
         log.info("token = {}",token);
         model.addAttribute("token",token);
         Auth2Member naverMember = os.getNaverMember(token);
-
-        setMemberToModel(model, naverMember);
+        setToken(response,naverMember);
+        //setMemberToModel(model, naverMember);
 
         return "redirect:/";
     }
 
-    private void setMemberToModel(Model model, Auth2Member auth2Member) {
+/*    private void setMemberToModel(Model model, Auth2Member auth2Member) {
         Member findBySocialId = os.findBySocialId(auth2Member.getId());
 
         if (findBySocialId == null) {
@@ -80,17 +81,16 @@ public class MemberOauth2Controller {
         model.addAttribute("email", auth2Member.getEmail());
         model.addAttribute("nick", auth2Member.getName());
         model.addAttribute("accountId",findBySocialId.getId());
+    }*/
+
+    private void setToken(HttpServletResponse response, Auth2Member kakaoMember) {
+        Token token = tokenService.generateToken(kakaoMember.getId(),"USER");
+        log.info("token = {}",token);
+        Cookie cookie = new Cookie("accessToken",token.getToken());
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        response.addCookie(cookie);
     }
 
-    private void writeTokenResponse(HttpServletResponse response, Token token) throws IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        response.addHeader("Auth", token.getToken());
-        response.addHeader("Refresh", token.getRefreshToken());
-        response.setContentType("application/json;charset=UTF-8");
-
-//        var writer = response.getWriter();
-//        writer.println(objectMapper.writeValueAsString(token));
-//        writer.flush();
-    }
 
 }

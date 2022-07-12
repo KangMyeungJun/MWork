@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <html lang="en">
 
 <head>
@@ -192,9 +193,9 @@
                                 <div class="media mb-4" th:styleappend="${item.parentComment != null} ? 'margin:10px; border:1px solid #333333; justify-content: flex-end' ">
                                     <div class="media-body" th:styleappend="'margin:10px'">
                                         <h6 th:text="${item.member.name} + '   ('  + ${#temporals.format(item.createdDate,'dd-MM-yyyy HH:mm')} + ')'"><small> - <i>01 Jan 2045</i></small></h6>
-                                        <button th:if="${(item.delFlag == T(com.mwork.main.entity.post.DelFlag).ACTIVATE)&&(session.accountId != null)}" id="onComment" th:onclick="|javascript:onComment(${item.board.id},${item.id})|" style="float: right;" class="btn">댓글</button>
-                                        <button th:if="${(item.delFlag == T(com.mwork.main.entity.post.DelFlag).ACTIVATE)&&(session.accountId == item.member.id)}"  id="onComment" th:onclick="|javascript:onDelComment(${item.id})|" style="float: right;" class="btn">삭제</button>
-                                        <button th:if="${(item.delFlag == T(com.mwork.main.entity.post.DelFlag).ACTIVATE)&&(session.accountId == item.member.id)}"  id="onComment" th:onclick="|javascript:onUpdateComment(${item.board.id},${item.id})|" style="float: right;" class="btn">수정</button><br/>
+                                        <button sec:authorize="isAuthenticated()" th:if="${(item.delFlag == T(com.mwork.main.entity.post.DelFlag).ACTIVATE)}" id="onComment" th:onclick="|javascript:onComment(${item.board.id},${item.id})|" style="float: right;" class="btn">댓글</button>
+                                        <button th:if="${(item.delFlag == T(com.mwork.main.entity.post.DelFlag).ACTIVATE)&&(udCondition)}"  id="onComment" th:onclick="|javascript:onDelComment(${item.id})|" style="float: right;" class="btn">삭제</button>
+                                        <button th:if="${(item.delFlag == T(com.mwork.main.entity.post.DelFlag).ACTIVATE)&&(udCondition)}"  id="onComment" th:onclick="|javascript:onUpdateComment(${item.board.id},${item.id})|" style="float: right;" class="btn">수정</button><br/>
                                         <p th:text="${item.content}">Diam amet duo labore stet elitr ea clita ipsum, tempor labore accusam ipsum et no at. Kasd diam tempor rebum magna dolores sed sed eirmod ipsum.</p>
                                         <div th:id="addOnComment + ${item.id}"></div>
                                         <div th:id="updateOnComment + ${item.id}"></div>
@@ -217,8 +218,8 @@
                                 <form method="post" th:action="@{'/post/' + ${item.id} + '/comment'}" id="commentFrm">
                                     <div class="form-group">
                                         <label for="message">댓글 남기기 *</label>
-                                        <textarea th:if="${session.accountId != null}" id="message" cols="30" rows="3" class="form-control" name="content"></textarea>
-                                        <textarea th:if="${session.accountId == null}" id="message" cols="30" rows="3" class="form-control" name="content" disabled>로그인 후 입력해주세요.</textarea>
+                                        <textarea sec:authorize="isAuthenticated()" id="message" cols="30" rows="3" class="form-control" name="content"></textarea>
+                                        <textarea sec:authorize="isAnonymous()" id="message" cols="30" rows="3" class="form-control" name="content" disabled>로그인 후 입력해주세요.</textarea>
                                     </div>
                                     <div class="form-group mb-0">
                                         <!--<input type="submit" value="댓글 입력" class="btn btn-primary px-3">-->

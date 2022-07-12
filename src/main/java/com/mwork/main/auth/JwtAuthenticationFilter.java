@@ -29,7 +29,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         Cookie[] cookies = request.getCookies();
-        Cookie cookie = null;
+        Cookie cookie;
         String token = null;
 
         if (cookies != null) {
@@ -48,7 +48,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Member findMember = oauth2Service.findBySocialId(uid);
             Authentication authentication = getAuthentication(findMember);
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            response.setContentType("text/html;charset=UTF-8");
+            response.setHeader("Name",findMember.getName());
+            response.setContentType("application/json;charset=UTF-8");
         }
+
+
         filterChain.doFilter(request,response);
     }
 

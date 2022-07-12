@@ -15,9 +15,8 @@ public class CommentInterceptor implements HandlerInterceptor {
 
         log.info("CommentInterceptor!");
 
-        HttpSession session = request.getSession();
-        Long accountId = (Long) session.getAttribute("accountId");
-        if (accountId == null) {
+        String accessToken = response.getHeader("Name");
+        if (accessToken == null) {
             response.sendRedirect("/");
             return false;
         }

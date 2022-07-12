@@ -1,5 +1,6 @@
 package com.mwork.main.home.service;
 
+import com.mwork.main.entity.member.Member;
 import com.mwork.main.entity.post.Comment;
 import com.mwork.main.home.repository.CommentRepository;
 import com.mwork.main.home.repository.PostRepository;
@@ -55,6 +56,8 @@ public class PostService {
     }
 
     public List<Comment> searchCommentByBoardId(Long id) {return commentRepository.findCommentByIdExcludeChild(id); }
+
+    public List<Comment> searchCommentByMemberId(Member member) {return commentRepository.findCommentsByMember(member);}
 
 
 

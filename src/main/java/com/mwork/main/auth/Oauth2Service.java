@@ -46,7 +46,7 @@ public class Oauth2Service {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
         params.add("client_id", "92d5910837e26848e623401f09c24031");
-        params.add("redirect_uri", "http://3.35.254.174/login/oauth2/code/kakao");
+        params.add("redirect_uri", "http://localhost/login/oauth2/code/kakao");
         params.add("code", code);
         params.add("client_secret", "JQIT8G3DarOMVSqziD8wI9okPggpNji7");
 
@@ -108,7 +108,7 @@ public class Oauth2Service {
         return km;
     }
 
-    public HttpEntity requestLogout(String token) {
+    public void requestLogout(String token) {
         RestTemplate rt = new RestTemplate();
         rt.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
         rt.setErrorHandler(new OauthRestTemplateErrorHandler());
@@ -118,12 +118,10 @@ public class Oauth2Service {
         headers.add("Content-type","application/x-www-form-urlencoded;charset=utf-8");
 
         HttpEntity<HttpHeaders> kakaoRequest = new HttpEntity<>(headers);
-        ResponseEntity<String> entity = rt.exchange("https://kapi.kakao.com/v1/user/logout",
+        rt.exchange("https://kapi.kakao.com/v1/user/logout",
                 HttpMethod.POST,
                 kakaoRequest,
                 String.class);
-
-        return entity;
     }
 
     public String getNaverToken(String code,String state) throws JsonProcessingException {
@@ -145,10 +143,8 @@ public class Oauth2Service {
                 String.class);
 
         ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode node = objectMapper.readTree(exchange.getBody().toString());
-        String token = node.get("access_token").asText();
-
-        return token;
+        JsonNode node = objectMapper.readTree(exchange.getBody());
+        return node.get("access_token").asText();
     }
 
     public Auth2Member getNaverMember(String token) throws JsonProcessingException {

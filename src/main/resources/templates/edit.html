@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <html lang="en">
 
 <head>
@@ -77,9 +78,8 @@
         </div>
         <div class="col-lg-6 col-6 text-left">
             <form action="">
-                <div class="input-group" th:if="${session.nick != null}">
-                    <p th:text="'안녕하세요 ' + ${session.nick} + '님!'"></p>
-
+                <div class="input-group"  sec:authorize="isAuthenticated()">
+                    <p th:text="'안녕하세요 ' + ${#response.getHeader('Name')} + '님!'"></p>
                 </div>
             </form>
         </div>
@@ -114,9 +114,9 @@
                         <a th:href="@{/post/pages}" class="nav-item nav-link">Post</a>
                     </div>
                     <div class="navbar-nav ml-auto py-0">
-                        <a th:if="${session.token == null}" href="https://kauth.kakao.com/oauth/authorize?client_id=92d5910837e26848e623401f09c24031&redirect_uri=http://3.35.254.174/login/oauth2/code/kakao&response_type=code&scope=account_email" class="nav-item nav-link">Kakao Login</a>
-                        <a href=""th:if="${session.token == null}" th:href="${naverApiUrl}" class="nav-item nav-link">Naver Login</a>
-                        <a th:if="${session.token != null}" th:href="@{'/login/oauth2/code/logout'}" href="http://localhost/login/oauth2/code/logout" class="nav-item nav-link">LogOut</a>
+                        <a sec:authorize="isAnonymous()" href="https://kauth.kakao.com/oauth/authorize?client_id=92d5910837e26848e623401f09c24031&redirect_uri=http://3.35.254.174/login/oauth2/code/kakao&response_type=code&scope=account_email" class="nav-item nav-link">Kakao Login</a>
+                        <a sec:authorize="isAnonymous()" th:href="${naverApiUrl}" class="nav-item nav-link">Naver Login</a>
+                        <a sec:authorize="isAuthenticated()" th:href="@{'/login/oauth2/code/logout'}" href="http://localhost/login/oauth2/code/logout" class="nav-item nav-link">LogOut</a>
                     </div>
                 </div>
             </nav>
