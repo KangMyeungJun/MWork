@@ -12,7 +12,7 @@
 ---
 
 - OS : mac12.4 (Monterey),ubuntu
-- Server : Embedded Apache Tomcat9.0, AWS EC2
+- Server : Embedded Apache Tomcat9.0
 - Language : Java,Javascript,HTML5,CSS,ThymeLeaf
 - DB : Oracle11g
 - Framework/Flatform : SpringBoot,Hibernate,QueryDsl,Docker
