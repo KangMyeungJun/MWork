@@ -1,18 +1,16 @@
 package com.mwork.main.auth;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mwork.main.entity.auth2.Auth2Member;
-import com.mwork.main.entity.member.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
@@ -25,7 +23,7 @@ import java.io.IOException;
 public class MemberOauth2Controller {
     private final Oauth2Service os;
     private final TokenService tokenService;
-    private final ObjectMapper objectMapper;
+
 
     @GetMapping("/kakao")
     public String kakaoOauthRedirect(@RequestParam String code, Model model, HttpServletResponse response) throws JSONException, IOException {
@@ -36,7 +34,6 @@ public class MemberOauth2Controller {
 
         Auth2Member kakaoMember = os.requestAuthorization(params);
         setToken(response, kakaoMember);
-        //setMemberToModel(model, kakaoMember);
 
         return "redirect:/";
     }
@@ -44,11 +41,9 @@ public class MemberOauth2Controller {
 
 
     @GetMapping("/logout")
-    public String kakaoOauthLogout(HttpServletResponse response /*,@SessionAttribute String token, SessionStatus status*/) {
+    public String logout(HttpServletResponse response) {
 
-/*        os.requestLogout(token);
-        status.setComplete();
-        log.info("setComplete = {}",status.isComplete());*/
+
 
         Cookie tokenCookie = new Cookie("accessToken",null);
         tokenCookie.setMaxAge(0);
@@ -65,23 +60,10 @@ public class MemberOauth2Controller {
         model.addAttribute("token",token);
         Auth2Member naverMember = os.getNaverMember(token);
         setToken(response,naverMember);
-        //setMemberToModel(model, naverMember);
 
         return "redirect:/";
     }
 
-/*    private void setMemberToModel(Model model, Auth2Member auth2Member) {
-        Member findBySocialId = os.findBySocialId(auth2Member.getId());
-
-        if (findBySocialId == null) {
-            os.saveMember(auth2Member);
-        }
-
-        model.addAttribute("oauth2id",auth2Member.getId());
-        model.addAttribute("email", auth2Member.getEmail());
-        model.addAttribute("nick", auth2Member.getName());
-        model.addAttribute("accountId",findBySocialId.getId());
-    }*/
 
     private void setToken(HttpServletResponse response, Auth2Member kakaoMember) {
         Token token = tokenService.generateToken(kakaoMember.getId(),"USER");

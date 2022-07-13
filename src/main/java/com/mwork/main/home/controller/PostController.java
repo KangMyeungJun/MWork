@@ -2,16 +2,13 @@ package com.mwork.main.home.controller;
 
 import com.mwork.main.auth.Oauth2Service;
 import com.mwork.main.auth.TokenService;
-import com.mwork.main.entity.post.*;
 import com.mwork.main.entity.member.Member;
-import com.mwork.main.home.repository.MemberRepository;
+import com.mwork.main.entity.post.*;
 import com.mwork.main.home.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -92,7 +89,7 @@ public class PostController {
         List<Comment> comments = postService.searchCommentByBoardId(id);
         model.addAttribute("comments",comments);
 
-        boolean udCondition = addUdcondition(model, member, findGetPost);
+        boolean udCondition = addUdcondition(member, findGetPost);
 
         model.addAttribute("udCondition",udCondition);
         model.addAttribute("item",findGetPost);
@@ -100,7 +97,7 @@ public class PostController {
         return "detail";
     }
 
-    private boolean addUdcondition(Model model, Member member, Board findGetPost) {
+    private boolean addUdcondition( Member member, Board findGetPost) {
         if (member != null && findGetPost.getMember().getId().equals(member.getId())) {
             return true;
         }
@@ -234,13 +231,6 @@ public class PostController {
         return findByIdComment.get();
     }
 
-/*    private Member getMember(Long accountId) {
-        Optional<Member> findMember = oauth2Service.findById(accountId);
-        if (findMember.isEmpty()) {
-            throw new EntityNotFoundException();
-        }
-        return findMember.get();
-    }*/
 
     private Board getBoard(Long id) {
         Optional<Board> findPost = postService.findByIdBoard(id);

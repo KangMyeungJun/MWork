@@ -1,16 +1,12 @@
 package com.mwork.main.home.repository;
 
 import com.mwork.main.entity.post.Comment;
-import static com.mwork.main.entity.post.QComment.*;
-
-import com.mwork.main.entity.post.DelFlag;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import java.time.LocalDateTime;
 import java.util.List;
+
+import static com.mwork.main.entity.post.QComment.comment;
 
 
 public class CommentRepositoryImpl implements CommentRepositoryCustom{

@@ -2,8 +2,6 @@ package com.mwork.main.home.repository;
 
 import com.mwork.main.entity.post.Board;
 import com.querydsl.core.types.OrderSpecifier;
-import static com.mwork.main.entity.post.QBoard.*;
-
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
